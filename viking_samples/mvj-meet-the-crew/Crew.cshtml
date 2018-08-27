@@ -1,0 +1,92 @@
+﻿@using Viking.Web.MyCruise.Models
+@model ShipVM
+@{
+    ViewBag.Title = "Meet Your Crew - " + Viking.Web.MyCruise.Properties.Settings.Default.SiteTitle;
+    var imageHeader = new ImageHeaderWithButtons(Model.ImageHeader);
+    imageHeader.ActiveButton = "crew";
+    imageHeader.ImageUrl = null;
+    imageHeader.DescriptionAlt = "";
+    imageHeader.DisableExpand = Model.Staff != null && Model.Staff.StaffList != null && Model.Staff.StaffList.Count() > 0;
+}
+
+<div class="ship-rivers">
+    <div class="container rivers-container-short no-bottom">
+        @Html.Partial("_MyShipTitle", imageHeader)
+    </div>
+
+        <div class="container rivers-container-short no-top ship-staff">
+            <div class="row">
+
+                <div class="godmother col-xs-12 col-sm-12">
+                    @if (Model.Staff != null && Model.Staff.StaffList != null)
+                    {
+                        for (var index = 0; index < Model.Staff.StaffList.Count(); index++)
+                        {
+                            if (Model.Staff.StaffList[index].Role == "Godmother")
+                            {
+                                <div class="staffDetails col-xs-12 col-sm-12">
+                                    @Html.Partial("_CrewDetails", Model.Staff.StaffList[index])
+                                 </div>
+                            }
+                         }
+                     }
+                                </div>
+            </div>
+            <div class="row">
+                <div class="captain col-xs-12 col-sm-12">
+                    @if (Model.Staff != null && Model.Staff.StaffList != null)
+                    {
+                        for (var index = 0; index < Model.Staff.StaffList.Count(); index++)
+                        {
+                            if (Model.Staff.StaffList[index].Role == "Captain")
+                            {
+                                <div class="staffDetails col-xs-12 col-sm-12">
+                               
+                                        @Html.Partial("_CrewDetails", Model.Staff.StaffList[index])
+                                   
+                                </div>
+                              }
+                         }
+                   }
+                    </div>
+            </div>
+            <div class="row">
+                    <div class="executive col-xs-6 col-sm-6 col-md-6 col-lg-6">
+                       
+
+                          @if (Model.Staff != null && Model.Staff.StaffList != null)
+                         {
+                             for (var index = 0; index < Model.Staff.StaffList.Count(); index++)
+                             {
+                                 if (Model.Staff.StaffList[index].Role == "Executive")
+                                 {
+                                     <div class="staffDetails col-xs-2 col-sm-2 col-md-2 col-lg-2">
+
+                                             @Html.Partial("_CrewDetails", Model.Staff.StaffList[index])
+
+                                     </div>
+                                   }
+                              }
+                        }
+                    </div>
+            </div>
+            <div class="row">
+                    <div class="staff col-xs-12 col-sm-12 col-lg-6 col-md-6">
+                          @if (Model.Staff != null && Model.Staff.StaffList != null)
+                         {
+                             for (var index = 0; index < Model.Staff.StaffList.Count(); index++)
+                             {
+                                 if (Model.Staff.StaffList[index].Role == "Staff")
+                                 {
+                                     <div class="staffDetails col-xs-4 col-sm-4 col-md-2 col-lg-2">
+
+                                             @Html.Partial("_CrewDetails", Model.Staff.StaffList[index])
+
+                                     </div>
+                                   }
+                              }
+                        }
+                    </div>
+            </div>
+       </div>
+</div>

@@ -1,0 +1,164 @@
+﻿@using Viking.Web.MyCruise.Models
+@model LatestNewsVM
+
+@{
+    ViewBag.Title = "News - " + Viking.Web.MyCruise.Properties.Settings.Default.SiteTitle;
+}
+<link rel="stylesheet" href="https://unpkg.com/flickity@2/dist/flickity.min.css">
+<script src="~/Scripts/flickity.pkgd.min.js"></script>
+
+<script type="text/javascript">
+    var JSONAlerts = @Html.Raw(Json.Encode(Model));
+</script>
+<style type="text/css">
+    .flickity-prev-next-button {
+        background: none !important;
+    }
+
+        .flickity-prev-next-button .arrow {
+            fill: #fff !important;
+        }
+
+        .flickity-prev-next-button:hover {
+            background: none !important;
+        }
+</style>
+
+<div id="latestNewsContainer" class="latest-news col-lg-12">
+    <div class="container rivers-container-short no-bottom">
+        @Html.Partial("_ImageHeader_Rev2", new ImageHeader
+   {
+       Title = Model.Title,
+   })
+    </div>
+    
+    <div class="container rivers-container-short no-top">
+
+ 
+        <div class="carousel page-item-container" data-bind="foreach: MainModel.Alerts, visible: MainModel.Alerts().length > 1" data-flickity='{"wrapAround":true, "cellAlign":"center","pageDots":false,"initialIndex":1,"draggable":false,"contain":true,"autoPlay":true }'>
+            <div class="carousel-cell">
+                <div class="item page-item" data-value="$data" data-bind="click: $parent.SelectAlert.bind($data)">
+
+                    <div class="alert-item-title">
+                        <h2 data-bind="trimText: Title" class="alert-title"></h2>
+                    </div>
+
+                    <div class="alert-item-title-container">
+                        <p class="alert-description"><span data-bind="text: NotificationDateString" class="alert-date"></span> - <span data-bind="text: ShortDescription"></span></p>
+
+                        <p><a href="#" class="view-all" data-bind="click: $parent.SelectAlert.bind($data)">VIEW &rsaquo;</a></p>
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+</div>
+       <!-- End Carousel container-->
+ 
+    <div class="container rivers-container-short no-bottom col-lg-12">
+        <div class="selectedNewsItem">
+
+            <h3><span data-bind="text: SelectedAlert().NotificationDateString" class="alert-date"></span></h3>
+            <hr />
+            <span data-bind="html: SelectedAlert().Description"></span>
+           
+                <table cellpadding="0" cellspacing="0" style="table-layout:auto;" class="itinerary-table table" data-bind="visible: SelectedAlert().ItineraryUpdates.Itinerary != null">
+                    <tr>
+                        <th class="day-col m-col"><span data-bind="html: SelectedAlert().ItineraryUpdates.DayTitle"></span></th>
+                        <th class="m-col"><span data-bind="html: SelectedAlert().ItineraryUpdates.PortNameTitle"></span></th>
+                        <th class="m-col" data-bind="visible: SelectedAlert().ItineraryUpdates.HasAccommodation"><span data-bind="html: SelectedAlert().ItineraryUpdates.AccommodationTitle"></span></th>
+                        <th class="m-col" data-bind="visible: SelectedAlert().ItineraryUpdates.HasActivities"><span data-bind="html: SelectedAlert().ItineraryUpdates.ActivityTitle"></span></th>
+                    </tr>
+                    
+                    <tbody data-bind="foreach: SelectedAlert().ItineraryUpdates.Itinerary">
+                        <tr>
+                            <td class="day-col show-xs">Day <span data-bind="html: Day"></span></td>
+                            <td class="show-xs">
+                                <span data-bind="html: PortName"></span>
+                                <!---display hotel and itinerary action here for mobile-->
+                                <div class="xs-itin-details">
+                                    <p data-bind="visible: $root.SelectedAlert().ItineraryUpdates.HasAccommodation"><br /><em><span data-bind="html: Accomodation"></span></em><br /></p>
+                                    <span data-bind="html: Activity,visible: $root.SelectedAlert().ItineraryUpdates.HasActivities"></span>
+                                </div>
+
+                            </td>
+                            <td data-bind="visible: $root.SelectedAlert().ItineraryUpdates.HasAccommodation"><span data-bind="html: Accomodation"></span></td> 
+                            <td data-bind="visible: $root.SelectedAlert().ItineraryUpdates.HasActivities"><span data-bind="html: Activity"></span></td>
+                        </tr>
+                    </tbody>
+                    
+                </table>
+
+                <p data-bind="visible: SelectedAlert().ItineraryUpdates.Itinerary != null">The above itinerary is based on current water levels and is subject to change. </p>
+         
+        </div>
+    </div>
+</div>   
+    
+    
+    
+@Scripts.Render("~/bundles/pager_scripts")
+<script type="text/javascript">
+    $(document).ready(function () {
+
+        ko.bindingHandlers.trimLengthText = {};
+        ko.bindingHandlers.trimText = {
+            init: function (element, valueAccessor, allBindingsAccessor, viewModel) {
+                var trimmedText = ko.computed(function () {
+                    var untrimmedText = ko.utils.unwrapObservable(valueAccessor());
+                    var defaultMaxLength = 25;
+                    var minLength = 5;
+                    var maxLength = ko.utils.unwrapObservable(allBindingsAccessor().trimTextLength) || defaultMaxLength;
+                    if (maxLength < minLength) maxLength = minLength;
+                    var text = untrimmedText.length > maxLength ? untrimmedText.substring(0, maxLength - 1) + '...' : untrimmedText;
+                    return text;
+                });
+                ko.applyBindingsToNode(element, {
+                    text: trimmedText
+                }, viewModel);
+
+                return {
+                    controlsDescendantBindings: true
+                };
+            }
+        };
+           
+        function LatestNewsViewModel() {
+
+	        var self = this;
+	        self.MainModel = ko.observableArray();
+	        self.MainModel = ko.mapping.fromJS(JSONAlerts);
+	        self.SelectedAlert = ko.observableArray();;
+	        self.init = function () { 
+	            if(self.MainModel.Alerts() != null && self.MainModel.Alerts().length > 0) {
+	                self.SelectAlert(self.MainModel.Alerts()[0]);
+	            }
+	        }
+
+	        self.SelectAlert = function(item) {
+	            for (var index = 0; index < self.MainModel.Alerts().length; index++) {
+	                self.MainModel.Alerts()[index].IsSelected(false);
+	            }
+	            item.IsSelected(true);
+	            
+	            var dto = {
+	                "CMSId": item.Id()
+	            };
+	            viking.utils.ajax(dto, "/latestnews/", "AlertViewed", item, self.SuccessfulResponse, self.SuccessfulResponse);
+	            self.SelectedAlert(item);
+	        }
+
+	        self.SuccessfulResponse = function (method, msg, item) {
+            }
+
+
+        }
+
+
+	    window.ViewModel = new LatestNewsViewModel();
+	    window.ViewModel.init();
+	    ko.applyBindings(window.ViewModel, $("#latestNewsContainer")[0]);
+	});
+</script>

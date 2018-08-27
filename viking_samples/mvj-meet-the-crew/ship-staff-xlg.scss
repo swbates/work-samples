@@ -1,0 +1,303 @@
+﻿
+.btn-toggle {
+    margin: 15px 0;
+}
+.ship-rivers {
+    .container {
+        margin:0 auto;
+    }
+}
+
+.ship-staff {
+    background: url('/content/my_cruise/images/emblem.png') no-repeat 50% 50%;
+    min-height: 900px;
+    width:100%;
+    max-width: 960px; 
+    background-size: contain; 
+    margin: 0 auto;
+    text-align: center;
+
+    .col-xs-3 { width: 20%!important;}
+   
+}
+
+.executive,.staff {
+    width: 100%;
+    margin: 0 auto;
+    float:none;
+}
+
+.staffDetails {
+    h4, h5 {
+        text-transform: capitalize !important;
+    }
+
+    .text-sans-serif-alt {
+        height: 30px;
+    }
+
+    text-align: center;
+    margin: 15px 0;
+    .viking-modal {
+        .modal-content {
+
+            .modal-body { 
+                    text-align: left !important;
+                 
+                    h3 { text-transform: capitalize!important;}
+                    img {
+                        margin: 0 !important;
+                    }
+            
+            }
+        }
+    }
+}
+
+
+
+.godmother {
+    .staffDetails {
+        img {
+           
+            max-width: 250px !important;
+            width: 100%;
+            
+            margin: 0 auto;
+        }
+    }
+}
+
+.captain {
+    .staffDetails {
+        img { max-width: 250px!important; width: 100%; margin: 0 auto; }
+    }
+}
+ 
+.executive {
+        img {
+            max-width: 200px !important;
+            width: 100%;
+            margin: 0 auto;
+        }
+}
+
+.staff {
+        img {
+            max-width: 150px !important;
+            width: 100%;
+            margin: 0 auto;
+        }
+}
+
+
+
+
+@media all and (min-width:$screen-lg){
+    .ship-staff {
+        .staff {
+            .col-lg-2 {
+                width: 20%;
+                float: none;
+                display: inline-block;
+            }
+        }
+
+        .executive {
+            .col-lg-2 {
+                width: 25%;
+                float: none;
+                display: inline-block;
+            }
+        }
+    }
+}
+  
+@media all and (min-width: $screen-md) and (max-width: $screen-lg){
+    .ship-staff {
+        .staff {
+            .col-md-2 {
+                width: 25%;
+                float: none;
+                display: inline-block;
+            }
+        }
+
+        .executive {
+            .col-md-2 {
+                width: 20%;
+                float: none;
+                display: inline-block;
+            }
+        }
+    }
+}
+ 
+@media all and (min-width: $screen-sm) and (max-width: $screen-md){
+    .ship-staff {
+        background-position: 50% 0;
+
+        .staff {
+            .col-sm-4 {
+                width: 30%;
+                float: none;
+                display: inline-block;
+            }
+        }
+
+        .executive {
+            .xs-hide {
+                display: block;
+            }
+
+            .col-sm-2 {
+                width: 30%;
+                float: none;
+                display: inline-block;
+            }
+        }
+    }
+
+    .container  { width: 738px; }
+}
+
+@media all and (min-width: $screen-tab) and (max-width: $screen-sm){
+    .ship-staff {
+        background-position: 50% 0;
+
+        .executive {
+            .col-xs-2 {
+                width: 40%;
+                float: none;
+                display: inline-block;
+            }
+
+            .xs-hide {
+                display: block;
+            }
+        }
+
+        .staff {
+            .col-xs-4 {
+                width: 30%;
+                float: none;
+                display: inline-block;
+            }
+        }
+
+        .staffDetails {
+
+
+            .modal-body {
+                text-align: center !important;
+
+
+                h3,h4 {
+                    margin: 20px 0;
+                }
+
+                .col-xs-4, .col-xs-8 {
+                    float: none;
+                    width: 90%;
+                    margin: 0 auto;
+                }
+
+                img {
+                    margin: 0 auto !important;
+                }
+            }
+        }
+    }
+}
+
+@media all and (min-width:$screen-xs + 1) and (max-width: $screen-tab) {
+    .ship-staff {
+        background-position: 50% 0;
+
+        .executive {
+            .col-xs-2 {
+                width: 50%;
+                float: none;
+                display: inline-block;
+            }
+        }
+
+        .staff {
+            .col-xs-4 {
+                float: none;
+                display: inline-block;
+                width: 40%;
+            }
+        }
+    }
+
+    .staffDetails {
+
+        .modal-content {
+            .modal-body {
+                text-align: center !important;
+
+
+                h3,h4 {
+                    margin: 20px 0;
+                }
+
+                .col-xs-4, .col-xs-8 {
+                    float: none;
+                    width: 90%;
+                    margin: 0 auto;
+                }
+
+                img {
+                    margin: 0 auto !important;
+                }
+            }
+        }
+    }
+}   
+
+@media all and (max-width:$screen-xs){
+    .ship-staff {
+        background-position: 50% 0;
+
+        .executive {
+            .col-xs-2 {
+                width: 100%;
+                float: none;
+                display: block;
+            }
+        }
+
+        .staff {
+            .col-xs-4 {
+                width: 100%;
+                float: none;
+                display: block;
+            }
+        }
+    }
+
+    .staffDetails {
+
+        .modal-content {
+            .modal-body {
+                text-align: center !important;
+
+
+                h3,h4 {
+                    margin: 20px 0;
+                }
+
+                .col-xs-4, .col-xs-8 {
+                    float: none;
+                    width: 90%;
+                    margin: 0 auto;
+                }
+
+                img {
+                    margin: 0 auto !important;
+                }
+            }
+        }
+    }
+}

@@ -1,0 +1,824 @@
+﻿@using Viking.Web.MyCruise.Models
+@model Viking.Web.MyCruise.Models.VikingAirVM
+@{
+    ViewBag.Title = "Air Preferences - " + Viking.Web.MyCruise.Properties.Settings.Default.SiteTitle;
+    ViewBag.ShowAirTransfers = @Model.ShowAirTransfers;
+    ViewBag.ShowUpgrades = @Model.ShowUpgrades;
+    ViewBag.IsAirBooked = @Model.IsAirBooked;
+}
+
+@section HeaderContent {
+    <script>
+        var JSONPreferences = @Html.Raw(Json.Encode(Model.AirPreferences));
+    </script>
+}
+
+<div class="air air-info">
+    <div class="container rivers-container-short no-bottom">
+        @{
+            var imageHeader = new Viking.Web.MyCruise.Models.ImageHeader();
+            var item = Model.VikingAirContentCollection[VikingAirVM.VikingAirViewCodes.ContentHeader];
+            //imageHeader.Title = "Air Preferences";
+            //imageHeader.Description = "Thank you for choosing Viking Air. Your flight details will be available no later than 75 days prior to departure – and will display below.  In the meantime, submit your air preferences to help us secure the travel itinerary that is right for you.";
+            //imageHeader.Title = item.Title;
+            ////imageHeader.Description = item.Description.ToString();
+            imageHeader.ImageUrl = item.ImageUrl;
+        }
+        @Html.Partial("_ImageHeader_Rev2", imageHeader)
+    </div>
+</div>
+
+@* ----------------------------------------------------------- *@
+@* Menu Nav: Column info in partial *@
+@* ----------------------------------------------------------- *@
+@{Html.RenderPartial("~/Views/EnhanceMyTrip/_VikingAirMenu2.cshtml", "airPref");}
+
+<div class="air air-preference">
+    @* ----------------------------------------------------------- *@
+    @* Header section *@
+    @* ----------------------------------------------------------- *@
+    <div class="container">
+        <div class="row">
+            <div class="col-xs-12 col-sm-10">
+                <h3 class="rivers">Air Preferences</h3>
+            </div>
+        </div>
+
+        @if (Model.AirPreferences.ErrorCode == "0")
+        {
+            <div class="row">
+                <div class="col-xs-12 col-sm-10">
+                    <span class="rivers">Thank you for choosing Viking Air. Please submit your air  and service request preferences below to help us secure the travel itinerary that is right for you.</span>
+                </div>
+            </div>
+        }
+    </div>
+
+    @if (Model.AirPreferences.ErrorCode == "0")
+    {
+    <div id="air-preference-container" class="container" data-bind="with: MainModel">
+
+        @*<pre data-bind="text: ko.toJSON($root.pageChanged, null, 2)"></pre>*@
+        @* ----------------------------------------------------------- *@
+        @* Unavailable section *@
+        @* ----------------------------------------------------------- *@
+        <!-- ko ifnot:  AirAvailable -->
+        <div class="row">
+            <div class="col-xs-12 col-md-12 content-frame">
+                <div class="content-frame-content unavailable">
+                    <h2>Air Preferences Unavailable</h2>
+                    <p>You must submit payment before selecting Air Preferences.</p>
+                    <a href="@Url.Content("~/Account/PaymentCenter")" class="btn btn-default btn-rivers btn-primary-rivers">Make a Payment</a>
+                </div>
+            </div>
+        </div>
+        <!-- /ko -->
+        <!-- ko if: AirAvailable -->
+        @* ----------------------------------------------------------- *@
+        @* Available options section *@
+        @* ----------------------------------------------------------- *@
+        <div class="row">
+            <div class="ap-options content-frame col-xs-12 col-md-12">
+                <div class="row">
+                    <div class="air air-info">
+                        <div class="row air-boxes-container common-height-min-height">
+                            <div class="col-xs-12 col-md-12 ">
+                                <h2>Preferences and Services</h2>
+                                <div class="">
+                                    @* ----------------------------------------------------------- *@
+                                    @* Selected Seat Preference - Read only *@
+                                    @* ----------------------------------------------------------- *@
+                                    <div data-bind="if: $root.ViewSeatingSection() == false">
+                                        <div class="content-frame-content readonly">
+                                            <div class="pull-right" data-bind="visible: IsLocked() === false">
+                                                <a href="#" class="dt" data-bind="click: $root.ShowSeatingSection">Edit Seat Preferences</a>
+                                            </div>
+                                            <h3>Seat Preferences</h3>
+                                            <!--ko if: Guests().length == 1 || GuestsHasSameAirItinerary() -->
+                                            <div class="row">
+                                                <strong><span data-bind="text: SameAirItineraryName"></span></strong>
+                                                <!-- ko if: Guests()[0].SeatPreference().length == 0-->
+                                                <span>None</span>
+                                                <!-- /ko -->
+                                                <!-- ko ifnot: Guests()[0].SeatPreference().length == 0-->
+                                                <h3 data-bind="text: $root.TranslateSeatingName(Guests()[0].SeatPreference())"><br /><br /></h3>
+                                                <img data-bind="attr: { alt: $root.TranslateSeatingName(Guests()[0].SeatPreference()), src: '/Content/my_cruise/images/' + Guests()[0].SeatPreference() + '.png' }" />
+                                                <!-- /ko -->
+                                                <br /><br />
+                                            </div>
+                                            <!--/ko -->
+                                            <!--ko if: GuestsHasSameAirItinerary() === false -->
+                                            <div data-bind="foreach: Guests">
+                                                <!-- ko if: ShowSeatingOptions() -->
+                                                <strong><span data-bind="text: FullName"></span></strong>
+                                                <div class="row">
+                                                    <!-- ko if: SeatPreference().length == 0-->
+                                                    None
+                                                    <!-- /ko -->
+                                                    <!-- ko ifnot: SeatPreference().length == 0-->
+                                                    <h3 data-bind="text: $root.TranslateSeatingName(SeatPreference())"><br /><br /></h3>
+                                                    <img data-bind="attr: { alt: $root.TranslateSeatingName(SeatPreference()), src: '/Content/my_cruise/images/' + SeatPreference() + '.png' }" />
+                                                    <!--/ko -->
+                                                    <br /><br />
+                                                </div>
+                                                <!-- /ko -->
+                                            </div>
+                                            <!-- /ko -->
+                                        </div>
+                                    </div>
+                                    @* ----------------------------------------------------------- *@
+                                    @* Selected Seat Preference Edit Form *@
+                                    @* ----------------------------------------------------------- *@
+                                    <div data-bind="if: $root.ViewSeatingSection()">
+                                        <div class="content-frame-content air-preferences-form">
+                                            <h3>Seat Preferences</h3>
+                                            <p>How would you like to be seated?</p>
+                                            <div data-bind="foreach: Guests">
+                                                @* Outer Loop : Guests *@
+                                                <!-- ko if: ShowSeatingOptions() -->
+                                                <!-- ko if: $parent.GuestsHasSameAirItinerary() -->
+                                                <strong><span data-bind="text: $parent.SameAirItineraryName()"></span></strong>
+                                                <!-- /ko -->
+                                                <!-- ko ifnot: $parent.GuestsHasSameAirItinerary -->
+                                                <strong><span data-bind="text: FullName"></span></strong>
+                                                <!-- /ko -->
+                                                <div class="row">
+                                                    <div data-bind="foreach: $root.MainModel().SeatAssignment()">
+                                                        @* Inner Loop : Seat Assignment Options*@
+                                                        <div class="col-sm-3">
+                                                            <div class="radio">
+                                                                <input type="radio" data-bind="attr: { name: $parent.Index, value: Id }, checked: $parent.SeatPreference" /> <span data-bind="text: Text" class="seat-pref"></span><br />
+                                                                <img data-bind="attr: { alt: Text, src: '/Content/my_cruise/images/' + Id + '.png' }" />
+                                                            </div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <!-- /ko -->
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @* ----------------------------------------------------------- *@
+                                    @* Special Service Requests  - readonly *@
+                                    @* ----------------------------------------------------------- *@
+                                    <div data-bind="if: $root.ViewPreferenceSection() == false">
+                                        <div class="content-frame-content readonly">
+                                            <div class="row air-boxes-container">
+                                                <div class="col-xs-12 col-md-12">
+                                                    <div class="">
+
+                                                        <div class="pull-right" data-bind="visible: IsLocked() === false">
+                                                            <a href="#" data-bind="click: $root.ShowPreferenceSection">Edit Service Requests</a>
+                                                        </div>
+                                                        <h3>Special Service Requests</h3>
+                                                        <p>Do you require assistance boarding or special meals on your flight?</p>
+                                                        <div class="clearfix">
+                                                            <!-- ko if: Guests().length == 1-->
+                                                            <div data-bind="with: Guests()[0]">
+                                                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                                                    <h2><span data-bind="text: FullName"></span></h2>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6">
+                                                                            <div class="form-group">
+                                                                                <h4>Wheelchair Access Required</h4>
+                                                                                <p data-bind="text: $root.FindValue(0, WheelchairAccess())"></p>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            <div class="panel-title">
+                                                                                <h4>Special Meal</h4>
+                                                                                <p data-bind="text: $root.FindValue(1, SpecialMeal())"></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6">
+                                                                            <h4>Meet and Assist</h4>
+                                                                            <!-- ko if : MeetAndAssist() == null || MeetAndAssist().length == 0 -->
+                                                                            <p>None</p>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot : MeetAndAssist() == null || MeetAndAssist().length == 0 -->
+                                                                            <p data-bind="text:MeetAndAssist"></p>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            <h4>Redress Number</h4>
+                                                                            <!-- ko if : RedressNumber().length == 0 -->
+                                                                            <p>None</p>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot : RedressNumber().length == 0 -->
+                                                                            <p data-bind="text:RedressNumber"></p>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-6">
+                                                                            <h4>Known Traveler Number</h4>
+                                                                            <!-- ko if : KnownTravelerNumber().length == 0 -->
+                                                                            <p>None</p>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot : KnownTravelerNumber().length == 0 -->
+                                                                            <p data-bind="text:KnownTravelerNumber"></p>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                        <div class="col-sm-6">
+                                                                            <div class="row">
+                                                                                <!-- ko if: HasFFItems-->
+                                                                                <div class="col-sm-4"><h4 class="dt">Airline</h4></div>
+                                                                                <div class="col-sm-8"><h4>Frequent Flyer Number</h4></div>
+                                                                                <!-- /ko -->
+                                                                                <!-- ko ifnot: HasFFItems-->
+                                                                                <div class="col-sm-12"><h4>Frequent Flyer Number</h4></div>
+                                                                                <!-- /ko -->
+                                                                            </div>
+                                                                            <!-- ko if: HasFFItems-->
+                                                                            <div data-bind="foreach: FrequentFlyerInfo">
+                                                                                <div class="row">
+                                                                                    <div class="col-sm-4">
+                                                                                        <p data-bind="text: $root.FindValue(2, Airline())"></p>
+                                                                                    </div>
+                                                                                    <div class="col-sm-8">
+                                                                                        <p data-bind="text: FrequentFlyerNumber"></p>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot: HasFFItems -->
+                                                                            <div class="row">
+                                                                                <div class="col-sm-12">
+                                                                                    <p>None</p>
+                                                                                </div>
+                                                                            </div>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /ko -->
+                                                            <!-- ko if: Guests().length > 1-->
+                                                            <div data-bind="foreach: Guests">
+                                                                <div class="col-xs-12 col-sm-11 col-md-6" data-bind="css: {'left' : $index() == 0 }">
+                                                                    <h2><span data-bind="text: FullName"></span></h2>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-10">
+                                                                            <div class="form-group">
+                                                                                <h4>Wheelchair Access Required</h4>
+                                                                                <p data-bind="text: $root.FindValue(0, WheelchairAccess())"></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-10">
+                                                                            <div class="panel-title">
+                                                                                <h4>Special Meal</h4>
+                                                                                <p data-bind="text: $root.FindValue(1, SpecialMeal())"></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-10">
+                                                                            <h4>Meet and Assist</h4>
+                                                                            <!-- ko if : MeetAndAssist() == null || MeetAndAssist().length == 0 -->
+                                                                            <p>None</p>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot : MeetAndAssist() == null || MeetAndAssist().length == 0 -->
+                                                                            <p data-bind="text:MeetAndAssist"></p>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-10">
+                                                                            <h4>Redress Number</h4>
+                                                                            <!-- ko if : RedressNumber().length == 0 -->
+                                                                            <p>None</p>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot : RedressNumber().length == 0 -->
+                                                                            <p data-bind="text:RedressNumber"></p>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-10">
+                                                                            <h4>Known Traveler Number</h4>
+                                                                            <!-- ko if : KnownTravelerNumber().length == 0 -->
+                                                                            <p>None</p>
+                                                                            <!-- /ko -->
+                                                                            <!-- ko ifnot : KnownTravelerNumber().length == 0 -->
+                                                                            <p data-bind="text:KnownTravelerNumber"></p>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        @*<pre data-bind="text: ko.toJSON(FrequentFlyerInfo)"></pre>*@
+                                                                        <!-- ko if: HasFFItems -->
+                                                                        <div class="col-sm-5"><h4 class="dt">Airline</h4></div>
+                                                                        <div class="col-sm-7"><h4>Frequent Flyer Number</h4></div>
+                                                                        <!-- /ko -->
+                                                                        <!-- ko ifnot: HasFFItems -->
+                                                                        <div class="col-sm-12"><h4>Frequent Flyer Number</h4></div>
+                                                                        <!-- /ko -->
+                                                                    </div>
+                                                                    <!-- ko if: HasFFItems -->
+                                                                    <div data-bind="foreach: FrequentFlyerInfo">
+                                                                        <div class="row">
+                                                                            <div class="col-sm-5">
+                                                                                <p data-bind="text: $root.FindValue(2, Airline())"></p>
+                                                                            </div>
+                                                                            <div class="col-sm-7">
+                                                                                <p data-bind="text: FrequentFlyerNumber"></p>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!--/ko -->
+                                                                    <!-- ko ifnot: HasFFItems -->
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <p>None</p>
+                                                                        </div>
+                                                                    </div>
+                                                                    <!-- /ko -->
+                                                                </div>
+                                                            </div>
+                                                            <!-- /ko -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+
+                                    @* ----------------------------------------------------------- *@
+                                    @* Special Service Requests Edit Form *@
+                                    @* ----------------------------------------------------------- *@
+                                    <div data-bind="if: $root.ViewPreferenceSection()">
+                                        <div class="content-frame-content">
+                                            <div class="row air-boxes-container">
+                                                <div class="col-md-12">
+                                                    <div class="">
+                                                        <h3>Special Service Requests</h3>
+                                                        <p>Do you require assistance boarding or special meals on your flight?</p>
+                                                        <div class="content-form clearfix">
+
+                                                            @*+++++++++++++++++++++++++++++++++++++++++++++++++++*@
+                                                            @* SINGLE GUEST UI SECTION *@
+                                                            @*+++++++++++++++++++++++++++++++++++++++++++++++++++*@
+                                                            <!-- ko if: Guests().length == 1-->  @* NOTE: Be sure to update the other section as well. *@
+                                                            <div data-bind="with: Guests()[0]">
+                                                                <div class="col-xs-12 col-sm-12 col-md-12">
+                                                                    <h2><span data-bind="text: FullName"></span></h2>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <div class="form-group">
+                                                                                <div class="pull-left">
+                                                                                    <label for="WheelchairAccess" class="rivers">Wheelchair Access Required</label>
+                                                                                </div>
+                                                                                <div class="pull-right gif-tooltip-container">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Complimentary wheelchair service must be requested at least 48 hours before your journey.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <select name="WheelchairAccess" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().WheelchairAccess, optionsCaption: 'NONE', optionsText: 'Value', optionsValue: 'Key', snkValue: WheelchairAccess"></select>
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="form-group">
+                                                                                <div class="pull-left">
+                                                                                    <label for="SpecialMeal" class="rivers">Special Meal</label>
+                                                                                </div>
+                                                                                <div class="pull-right">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Please contact the carrier 48 hours prior to departure for special meal confirmation.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <select name="SpecialMeal" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().SpecialMeal, optionsCaption: 'NONE', optionsText: 'Value', optionsValue: 'Key', snkValue: SpecialMeal"></select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <div class="form-group">
+                                                                                <div class="pull-left">
+                                                                                    <label for="MeetAndAssist" class="rivers">Meet and Assist</label>
+                                                                                </div>
+                                                                                <div class="pull-right">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Meet and greet services to facilitate passage through the airport. Please contact the carrier 48 hours prior to departure for confirmation.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <!-- ko if : DisplayMeetAndAssistDropDown -->
+                                                                                <select name="MeetAndAssist" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().MeetAndAssist, optionsCaption: 'NONE', optionsText: 'Value', optionsValue: 'Value', value: MeetAndAssist"></select>
+                                                                                <!-- /ko -->
+                                                                                <!-- ko ifnot: DisplayMeetAndAssistDropDown -->
+                                                                                <span data-bind="text: MeetAndAssist"></span>
+                                                                                <!-- /ko -->
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="form-group">
+                                                                                <div class="pull-left">
+                                                                                    <label for="RedressNum" class="rivers">Redress Number</label>
+
+                                                                                </div>
+                                                                                <div class="pull-right">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Unique number that helps the TSA eliminate watchlist misidentification and verify identity.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <input name="RedressNum" type="text" class="form-control print-hide country-dropdown" placeholder="Redress Number" data-bind="snkValue: RedressNumber" maxlength="25" />
+                                                                            </div>
+                                                                        </div>
+
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-md-6">
+                                                                            <div class="form-group">
+                                                                                <div class="pull-left">
+                                                                                    <label for="KnownTravelerNum" class="rivers">Known Traveler Number</label>
+                                                                                </div>
+                                                                                <div class="pull-right">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Government issued number that indicates that a passenger has undergone pre-flight background check. This includes Pre-TSA check and Global Entry programs.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <input name="KnownTravelerNum" type="text" class="form-control print-hide country-dropdown" placeholder="Known Traveler Number" data-bind="snkValue: KnownTravelerNumber" maxlength="25" />
+                                                                            </div>
+                                                                        </div>
+                                                                        <div class="col-md-6">
+                                                                            <div class="form-group">
+                                                                                <div class="row">
+                                                                                    @*-----------------------------*@
+                                                                                    @* Main Frequent Flyer Section *@
+                                                                                    @*-----------------------------*@
+                                                                                    <div class="frequentFlyerSection">
+                                                                                        @*----------------------------------------*@
+                                                                                        @* Main content of Frequent Flyer Section *@
+                                                                                        @*-----------------------------------------*@
+                                                                                        <div class="row">
+                                                                                            <div class="col-sm-4">
+                                                                                                <div class="form-group">
+                                                                                                    <div class="pull-left">
+                                                                                                        <label for="Airline" class="rivers">Airline</label>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                            <div class="col-sm-8">
+                                                                                                <div class="form-group" style="width: 100%;">
+                                                                                                    <div class="pull-left">
+                                                                                                        <label for="FrequentFlyerNumber" class="rivers">Frequent Flyer Number</label>
+                                                                                                    </div>
+                                                                                                    <div class="pull-right">
+                                                                                                        <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left" title="Viking Cruises may use special contract rates in order to pass on air savings; frequent flyer mile accumulation may be limited or not allowed."></span>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <div data-bind="attr: { id: 'ff_guest_section_' + $data.Index() }">
+                                                                                            <div data-bind="foreach: FrequentFlyerInfo">
+                                                                                            @* Frequent Flyer Section *@
+                                                                                            <div class="row">
+                                                                                                <div class="col-sm-4">
+                                                                                                    <!-- ko if : Sequence() > 0 -->
+                                                                                                    <div class="form-group">
+                                                                                                        <h3 class="show-xs">Airline: </h3> <p data-bind="text: $root.FindValue(2, Airline())"></p>
+                                                                                                    </div>
+                                                                                                    <!-- /ko -->
+                                                                                                    <!-- ko ifnot : Sequence() > 0 -->
+                                                                                                    <select name="FrequentFlyerAirlineList" class="form-control print-hide country-dropdown error" data-bind="options: $root.MainModel().Airline, optionsCaption: 'Select Airline', optionsText: 'Value', optionsValue: 'Key', event: { click: $root.checkForDuplicates($data, $parent) }, snkValue: Airline"></select>
+                                                                                                    <!-- /ko -->
+                                                                                                </div>
+                                                                                                <div class="col-sm-6">
+                                                                                                    <!-- ko if : Sequence() > 0 -->
+                                                                                                    <div class="form-group">
+                                                                                                        <h3 class="show-xs">Frequent Flyer Number: </h3>
+                                                                                                        <p data-bind="text: FrequentFlyerNumber"></p>
+                                                                                                    </div>
+                                                                                                    <!-- /ko -->
+                                                                                                    <!-- ko ifnot : Sequence() > 0 -->
+                                                                                                    <input type="text" class="form-control print-hide country-dropdown" placeholder="Frequent Flyer Number" data-bind="value: FrequentFlyerNumber, attr: { 'disabled': IsDisabled()}" maxlength="25">
+                                                                                                    <!-- /ko -->
+                                                                                                </div>
+                                                                                                <div class="col-sm-2">
+                                                                                                    <div class="form-group" data-bind="visible: IsInitial() == false">
+                                                                                                        <a href="#" class="text-sans-serif-alt-medium" style="font-size:smaller" data-bind="click:$root.RemoveFF.bind($data, $parent)">
+                                                                                                            Delete
+                                                                                                        </a>
+                                                                                                    </div>
+                                                                                                </div>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        </div>
+                                                                                        <!-- ko if : FrequentFlyerInfo().length < 3 -->
+                                                                                        <div class="row">
+                                                                                            <div class="col-sm-12">
+                                                                                                <a href="#" class="text-sans-serif-alt-medium" style="font-size:smaller" data-bind="click: $root.AddFrequentFlyerNumber.bind($data)">
+                                                                                                    + Add another Frequent Flyer Number
+                                                                                                </a>
+                                                                                            </div>
+                                                                                        </div>
+                                                                                        <!--/ko-->
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /ko-->
+                                                            @*+++++++++++++++++++++++++++++++++++++++++++++++++++*@
+                                                            @* MULTIPLE GUESTS UI SECTION *@
+                                                            @*+++++++++++++++++++++++++++++++++++++++++++++++++++*@
+                                                            @*<pre data-bind="text: ko.toJSON($data, null, 2)"></pre>*@
+                                                            <!-- ko if: Guests().length > 1-->
+                                                            <div data-bind="foreach: Guests">
+                                                                <div class="col-xs-12 col-sm-12 col-md-6" data-bind="css: {'left' : $index() == 0 }">
+                                                                    <h2><span data-bind="text: FullName"></span></h2>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="form-group">
+                                                                                <div>
+                                                                                    <label for="WheelchairAccess" class="pull-left rivers">Wheelchair Access Required</label>
+                                                                                    <div class="pull-right gif-tooltip-container">
+                                                                                        <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                              title="Complimentary wheelchair service must be requested at least 48 hours before your journey.">
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="clearfix"></div>
+                                                                                </div>
+                                                                                <select name="WheelchairAccess" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().WheelchairAccess, optionsCaption: 'NONE', optionsText: 'Value', optionsValue: 'Key', snkValue: WheelchairAccess"></select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="form-group">
+                                                                                <label for="SpecialMeal" class="pull-left rivers">Special Meal</label>
+                                                                                <div class="pull-right">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Please contact the carrier 48 hours prior to departure for special meal confirmation.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <select name="SpecialMeal" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().SpecialMeal, optionsCaption: 'NONE', optionsText: 'Value', optionsValue: 'Key', snkValue: SpecialMeal"></select>
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="form-group">
+                                                                                <label for="MeetAndAssist" class="pull-left rivers">Meet and Assist</label>
+                                                                                <div class="pull-right">
+                                                                                    <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                          title="Meet and greet services to facilitate passage through the airport. Please contact the carrier 48 hours prior to departure for confirmation.">
+                                                                                    </span>
+                                                                                </div>
+                                                                                <div class="clearfix"></div>
+                                                                                <!-- ko if: DisplayMeetAndAssistDropDown -->
+                                                                                <select name="MeetAndAssist" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().MeetAndAssist, optionsCaption: 'NONE', optionsText: 'Value', optionsValue: 'Value', value: MeetAndAssist"></select>
+                                                                                <!-- /ko -->
+                                                                                <!-- ko ifnot: DisplayMeetAndAssistDropDown -->
+                                                                                <span data-bind="text: MeetAndAssist"></span>
+                                                                                <!-- /ko -->
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="form-group">
+                                                                                <div>
+                                                                                    <label for="RedressNum" class="pull-left rivers">Redress Number</label>
+                                                                                    <div class="pull-right">
+                                                                                        <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                              title="Unique number that helps the TSA eliminate watchlist misidentification and verify identity.">
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="clearfix"></div>
+                                                                                </div>
+                                                                                <input name="RedressNum" type="text" class="form-control print-hide country-dropdown" placeholder="Redress Number" data-bind="snkValue: RedressNumber" maxlength="25" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+                                                                    <div class="row">
+                                                                        <div class="col-sm-12">
+                                                                            <div class="form-group">
+                                                                                <div>
+                                                                                    <label for="KnownTravelerNum" class="pull-left rivers">Known Traveler Number</label>
+                                                                                    <div class="pull-right">
+                                                                                        <span class="fa fa-question-circle-o print-hide" data-toggle="tooltip" role="tooltip" data-placement="left"
+                                                                                              title="Government issued number that indicates that a passenger has undergone pre-flight background check. This includes Pre-TSA check and Global Entry programs.">
+                                                                                        </span>
+                                                                                    </div>
+                                                                                    <div class="clearfix"></div>
+                                                                                </div>
+                                                                                <input name="KnownTravelerNum" type="text" class="form-control print-hide country-dropdown" placeholder="Known Traveler Number" data-bind="snkValue: KnownTravelerNumber" maxlength="25" />
+                                                                            </div>
+                                                                        </div>
+                                                                    </div>
+
+                                                                    @*---------------------------------------------------------------------------------------------*@
+                                                                    @* Main Frequent Flyer Section *@
+                                                                    @*---------------------------------------------------------------------------------------------*@
+                                                                    <div class="frequentFlyerSection">
+                                                                        @*---------------------------------------------------------------------------------------------*@
+                                                                        @* Header of Frequent Flyer Section *@
+                                                                        @*---------------------------------------------------------------------------------------------*@
+                                                                        <div class="row">
+                                                                            <div class="col-sm-4">
+                                                                                <div class="form-group">
+                                                                                    <div class="pull-left">
+                                                                                        <label for="FrequentFlyerNumber hide-xs" class="rivers">Airline</label>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <div class="col-sm-8">
+                                                                                <div class="form-group">
+                                                                                    <div class="pull-left">
+                                                                                        <label for="FrequentFlyerNumber hide-xs" class="rivers">Frequent Flyer Number</label>
+                                                                                    </div>
+                                                                                    <div class="pull-right">
+                                                                                        <span class="fa fa-question-circle-o hide-sm mobile-hide" data-toggle="tooltip" role="tooltip" data-placement="left" title="Viking Cruises may use special contract rates in order to pass on air savings; frequent flyer mile accumulation may be limited or not allowed."></span>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+
+                                                                        </div>
+                                                                        @*---------------------------------------------------------------------------------------------*@
+                                                                        @* Main content of Frequent Flyer Section *@
+                                                                        @*---------------------------------------------------------------------------------------------*@
+                                                                        <div data-bind="attr: { id: 'ff_guest_section_' + $data.Index() }">
+                                                                            <div data-bind="foreach: FrequentFlyerInfo">
+                                                                                @* Frequent Flyer Section *@
+                                                                                <div class="row">
+                                                                                    <div class="col-sm-4">
+                                                                                        @*<pre data-bind="text: ko.toJSON($data)"></pre>*@
+                                                                                        <!-- ko if : Sequence() > 0 -->
+                                                                                        <div class="form-group ">
+                                                                                            <h3 class="rivers hide-sm-and-above">Airline:</h3> <p data-bind="text: $root.FindValue(2, Airline())"></p>
+                                                                                        </div>
+                                                                                        <!-- /ko -->
+                                                                                        <!-- ko ifnot : Sequence() > 0 -->
+                                                                                        <select name="FrequentFlyerAirlineList" class="form-control print-hide country-dropdown" data-bind="options: $root.MainModel().Airline, optionsCaption: 'AIRLINE', optionsText: 'Value', optionsValue: 'Key', snkValue: Airline, event: { click: $root.checkForDuplicates($data, $parent) }"></select>
+                                                                                        <!-- /ko -->
+                                                                                    </div>
+                                                                                    <div class="col-sm-6">
+                                                                                        <!-- ko if : Sequence() > 0 -->
+                                                                                        <div class="form-group">
+                                                                                            <h3 class="rivers hide-sm-and-above">Frequent Flyer Number: </h3> <p data-bind="text: FrequentFlyerNumber"></p>
+                                                                                        </div>
+                                                                                        <!-- /ko -->
+                                                                                        <!-- ko ifnot : Sequence() > 0 -->
+                                                                                        <input type="text" class="form-control print-hide country-dropdown" placeholder="Frequent Flyer Number" data-bind="value: FrequentFlyerNumber, attr: { 'disabled': IsDisabled()" maxlength="25">
+                                                                                        <!-- /ko -->
+                                                                                    </div>
+                                                                                    <div class="col-sm-1">
+                                                                                        <div class="form-group" data-bind="visible: IsInitial() == false">
+                                                                                            <a href="#" class="text-sans-serif-alt-medium" style="font-size:smaller" data-bind="click:$root.RemoveFF.bind($data, $parent)">
+                                                                                                Delete
+                                                                                            </a>
+                                                                                        </div>
+                                                                                    </div>
+                                                                                </div>
+                                                                            </div>
+                                                                            <!-- ko if : FrequentFlyerInfo().length < 3 -->
+                                                                            <div class="row">
+                                                                                <div class="col-sm-12">
+                                                                                    <a href="#" class="text-sans-serif-alt-medium" style="font-size:smaller" data-bind="click: $root.AddFrequentFlyerNumber.bind($data)">
+                                                                                        + Add another Frequent Flyer Number
+                                                                                    </a>
+                                                                                </div>
+                                                                            </div>
+                                                                            <!-- /ko -->
+                                                                        </div>
+                                                                    </div>
+                                                                </div>
+                                                            </div>
+                                                            <!-- /ko -->
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- ko if : $root.ViewSeatingSection() || $root.ViewPreferenceSection() -->
+                <div data-bind="visible: $root.ShowErrorMessage()">
+                    <div class="row text-center">
+                        <div class="col-xs-12 col-sm-10 col-md-12">
+                            <div id="account-create-voyage-not-found" class="text-brand-danger-light">
+                                We are experiencing technical difficulties - please try again later or <a href="@Url.Action("Contact", "Help")">contact us</a> to speak with a Viking representative.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="row content-frame-append">
+                        <div class="row text-center">
+                            <div class="col-xs-12 col-sm-10 col-md-12">
+                                @*<p>Once submitted, a Viking representative will manage your booking and be in touch within 3 business days.</p>*@
+                                <button class="btn btn-default btn-rivers btn-primary-rivers" data-bind="click: $root.SaveForm">Save</button>&nbsp;
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <!-- /ko -->
+            </div>
+        </div>
+        <!-- /ko -->
+        @*-----------------------------------------------------------------------------*@
+        @* Unsaved changes warning modal *@
+        @*-----------------------------------------------------------------------------*@
+        <div id="air-preference-form-confirm-navigate" class="modal fade viking-modal" data-keyboard="false">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <a href="#" data-dismiss="modal" class="pull-right print-hide">
+                            <span aria-hidden="true">
+                                <img src="/content/my_cruise/images/close.png" alt="">
+                            </span>
+                            <span class="sr-only">Close</span>
+                        </a>
+                        <div class="clearfix"></div>
+                    </div>
+                    <div class="modal-body">
+                        <br />
+                        <h5 class="rivers">The Air Preferences Form has unsaved changes!</h5>
+                        <br />
+                        <h5 class="rivers">
+                            <span class="guest-info-form-confirm-navigate-page">Are you sure you want to leave this page?</span>
+                        </h5>
+                        <br />
+                        <div class="text-center">
+                            <a href="#" class="btn btn-default btn-rivers btn-primary-rivers" data-dismissx="modal" data-bind="click: $root.leavePage">Yes</a>
+                            &nbsp;
+                            <a href="#" class="btn btn-default btn-rivers btn-primary-rivers" data-dismiss="modal">No</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    }
+    else
+    {
+        <div id="air-preference-container" class="container">
+            <div class="row">
+			    <div class="col-sm-12">
+                     <div id="account-create-voyage-noxt-found" class="text-brand-danger-light">
+                        We are experiencing technical difficulties - please try again later or <a href="@Url.Action("Contact", "Help")">contact us</a> to speak with a Viking representative.
+                     </div>
+			    </div>
+		    </div>
+        </div>
+    }
+</div>
+
+<div id="modalSuccess" class="modal fade viking-modal rivers-modal xrivers-shorex-modal" data-keyboard="false">
+    <div class="modal-dialog viking-modal-md">
+        <div class="modal-content">
+            <div class="modal-header">
+                <a href="#" data-dismiss="modal" class="pull-right">
+                    <span aria-hidden="true">
+                        <img style="height: 15px" src="@Url.Content("~/content/my_cruise/images/close.png")" alt="" />
+                    </span>
+                    <span class="sr-only">Close</span>
+                </a>
+            </div>
+            <div class="modal-title">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="title">
+                            <h5 class="rivers">
+                                <span>Preferences Saved</span>
+                            </h5>
+                            <hr />
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-body">
+                <div class="row">
+                    <div class="col-sm-12">
+                        <div class="form-group">
+                            <div class="text-center">
+                                <button type="button" class="btn btn-default btn-default" data-dismiss="modal">Close</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@* -------------------------------------------------------------------------------------------- *@
+@* Load Scripts *@
+@* -------------------------------------------------------------------------------------------- *@
+@Scripts.Render("~/bundles/airpreferences_scripts")
